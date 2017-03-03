@@ -32,7 +32,11 @@ write_config () {
       "solr_url = ${CKAN_SOLR_URL}" \
       "ckan.redis.url = ${CKAN_REDIS_URL}" \
       "ckan.storage_path = ${CKAN_STORAGE_PATH}" \
-      "ckan.site_url = ${CKAN_SITE_URL}"
+      "ckan.site_url = ${CKAN_SITE_URL}" \
+      "ckan.plugins = stats text_view image_view recline_view battlesnake"
+
+  ckan-paster --plugin=ckan config-tool "$CONFIG" -s "DEFAULT" -e \
+      "debug = true"
 }
 
 link_postgres_url () {
@@ -57,7 +61,7 @@ link_redis_url () {
 }
 
 # If we don't already have a config file, bootstrap
-#if [ ! -e "$CONFIG" ]; then
+if [ ! -e "$CONFIG" ]; then
 
   if [ -z "$CKAN_SQLALCHEMY_URL" ]; then
     if ! CKAN_SQLALCHEMY_URL=$(link_postgres_url); then
@@ -79,7 +83,9 @@ link_redis_url () {
 
   write_config
 
-#fi
+fi
+
+find $CKAN_EXT_PATH -maxdepth 1 -mindepth 1 -type d -exec ckan-pip install -e {} \;
 
 # Initializes the Database
 ckan-paster --plugin=ckan db init -c "${CKAN_CONFIG}/ckan.ini"

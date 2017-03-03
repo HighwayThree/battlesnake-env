@@ -27,19 +27,19 @@ RUN ln -s $CKAN_HOME/bin/paster /usr/local/bin/ckan-paster
 RUN ckan-pip install -e 'git+https://github.com/ckan/ckan.git@ckan-2.6.1#egg=ckan'
 RUN ckan-pip install --upgrade -r $CKAN_HOME/src/ckan/requirements.txt
 
-ADD ./src $CKAN_EXT_PATH
-RUN find $CKAN_EXT_PATH -maxdepth 1 -mindepth 1 -type d -exec ckan-pip install -e {} \;
+COPY ./src $CKAN_EXT_PATH
+#RUN find $CKAN_EXT_PATH -maxdepth 1 -mindepth 1 -type d -exec ckan-pip install -e {} \;
 
 # SetUp CKAN
 RUN ln -s $CKAN_HOME/src/ckan/ckan/config/who.ini $CKAN_CONFIG/who.ini
-
-# Volumes
-VOLUME /etc/ckan/default /var/lib/ckan /usr/src
 
 # SetUp EntryPoint
 COPY ./docker/ckan-entrypoint.sh /
 RUN chmod +x /ckan-entrypoint.sh
 ENTRYPOINT ["/ckan-entrypoint.sh"]
+
+# Volumes
+VOLUME /etc/ckan/default /var/lib/ckan /usr/src
 
 EXPOSE 5000
 
